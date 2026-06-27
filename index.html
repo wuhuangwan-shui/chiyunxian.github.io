@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2026软科中国大学排名 · 985 / 211 / 双一流</title>
+  <link rel="stylesheet" href="fonts/fcicon.css">
   <style>
     :root {
       --bg: #f5f7fa;
@@ -84,39 +85,20 @@
       box-shadow: 0 1px 3px rgba(0,0,0,.06);
       overflow: hidden;
     }
-    .school-list-header {
-      display: grid;
-      grid-template-columns: 52px 1fr 70px 70px auto;
-      gap: 8px;
-      padding: 12px 14px;
-      background: #f9fafb;
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-    }
-    .school-list-header .sortable { cursor: pointer; }
-    .school-list-header .sortable:hover { background: #f3f4f6; }
-    .school-list-header .sort { margin-left: 2px; opacity: .5; }
-    .school-list-header .sort-asc .sort::after { content: "▲"; opacity: 1; }
-    .school-list-header .sort-desc .sort::after { content: "▼"; opacity: 1; }
-    .school-row {
-      display: grid;
-      grid-template-columns: 52px 1fr 70px 70px auto;
-      gap: 8px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-      transition: background .15s;
-    }
-    .school-row:hover { background: #f9fafb; }
-    .col-rank { font-weight: 700; color: var(--primary); text-align: center; }
-    .col-rank.top3 { color: #b45309; }
-    .col-name { font-weight: 500; }
-    .col-province, .col-type { color: var(--text); font-size: 13px; }
-    .col-meta { display: none; }
-    .col-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f9fafb; color: var(--muted); font-weight: 600; white-space: nowrap; cursor: pointer; }
+    th:hover { background: #f3f4f6; }
+    th .sort { margin-left: 4px; opacity: .5; }
+    th.sort-asc .sort::after { content: "▲"; opacity: 1; }
+    th.sort-desc .sort::after { content: "▼"; opacity: 1; }
+    tr:hover td { background: #f9fafb; }
+    .rank { font-weight: 700; color: var(--primary); width: 60px; }
+    .rank.top3 { color: #b45309; }
+    .name { font-weight: 500; }
+    .school-icon { width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; object-fit: contain; background: #fff; border-radius: 4px; }
+    i.school-icon { width: auto; height: auto; font-size: 22px; }
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag {
       display: inline-block;
       padding: 2px 8px;
@@ -129,21 +111,40 @@
     .tag-211 { background: var(--tag-211); }
     .tag-syl { background: var(--tag-syl); }
     @media (max-width: 640px) {
-      .school-list-header { display: none; }
-      .school-row {
-        grid-template-columns: 48px 1fr;
-        column-gap: 12px;
-        row-gap: 4px;
-        padding: 14px;
+      thead { display: none; }
+      table, tbody { display: block; }
+      tr {
+        display: block;
+        position: relative;
+        padding: 14px 14px 14px 62px;
         border-bottom: 1px solid var(--border);
-        margin: 0;
-        border-radius: 0;
       }
-      .col-rank { grid-row: 1 / 3; font-size: 20px; align-self: center; }
-      .col-name { font-size: 15px; line-height: 1.3; }
-      .col-province, .col-type { display: none; }
-      .col-meta { display: block; grid-column: 2; font-size: 12px; color: var(--muted); }
-      .col-tags { grid-column: 1 / -1; margin-top: 6px; }
+      tr:last-child { border-bottom: none; }
+      td { display: block; padding: 0; border: none; }
+      td.rank {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        font-weight: 700;
+        width: auto;
+      }
+      td.rank.top3 { color: #b45309; }
+      td.name { font-size: 15px; font-weight: 500; text-align: right; margin-bottom: 2px; }
+      td.name .school-icon {
+        position: absolute;
+        bottom: 10px;
+        right: 12px;
+        width: 48px;
+        height: 48px;
+        pointer-events: none;
+      }
+      .school-icon { width: 28px; height: 28px; margin-right: 4px; }
+      i.school-icon { width: auto; height: auto; font-size: 24px; }
+      td.province, td.type { display: inline; font-size: 12px; color: var(--muted); }
+      td.province::after { content: " · "; }
+      td.tags { margin-top: 6px; }
       .tag { font-size: 11px; padding: 2px 6px; }
     }
     .note {
@@ -174,7 +175,7 @@
       .view-tabs { flex-wrap: wrap; }
       .view-tab { flex: 1; text-align: center; font-size: 13px; padding: 8px 12px; }
       .view-tab:last-child { margin-left: 0; flex-basis: 100%; }
-      .card { overflow-x: visible; }
+      .card { overflow-x: auto; }
       .tag { font-size: 11px; padding: 2px 6px; }
       #map-container { height: 360px; }
       .map-header { padding: 12px 14px; }
@@ -328,14 +329,18 @@
     </div>
 
     <div class="card" id="table-card">
-      <div class="school-list-header" id="list-header">
-        <div class="sortable" data-sort="rank">排名<span class="sort">⇅</span></div>
-        <div class="sortable" data-sort="name">学校名称<span class="sort">⇅</span></div>
-        <div class="sortable" data-sort="province">省市<span class="sort">⇅</span></div>
-        <div class="sortable" data-sort="type">类型<span class="sort">⇅</span></div>
-        <div>办学层次</div>
-      </div>
-      <div id="school-list-body"></div>
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="rank">排名<span class="sort">⇅</span></th>
+            <th data-sort="name">学校名称<span class="sort">⇅</span></th>
+            <th data-sort="province">省市<span class="sort">⇅</span></th>
+            <th data-sort="type">类型<span class="sort">⇅</span></th>
+            <th>办学层次</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
     </div>
 
     <div class="map-card" id="map-card">
@@ -513,7 +518,12 @@
     let currentSort = { key: 'rank', dir: 'asc' };
     let searchTerm = '';
 
-    const schoolListBody = document.getElementById('school-list-body');
+    const tbody = document.getElementById('tbody');
+
+    // 校徽：优先本地PNG，兜底字体图标
+    const LOGO_DIR = 'logos/';
+    const schoolLogoMap = {};
+    const schoolIconMap = {};
     const searchInput = document.getElementById('search');
     const tabs = document.querySelectorAll('.tab');
 
@@ -566,23 +576,26 @@
 
     function render() {
       const data = sortData(getFiltered());
-      schoolListBody.innerHTML = data.map(u => `
-        <div class="school-row">
-          <div class="col-rank ${u.rank != null && u.rank <= 3 ? 'top3' : ''}">${u.rank != null ? u.rank : '—'}</div>
-          <div class="col-name">${u.name}</div>
-          <div class="col-province">${u.province}</div>
-          <div class="col-type">${u.type}</div>
-          <div class="col-meta">${u.province} · ${u.type}</div>
-          <div class="col-tags">${renderTags(u.tags)}</div>
-        </div>
-      `).join('');
+      tbody.innerHTML = data.map(u => {
+        // 本地PNG优先，不存在则用字体图标兜底
+        const logoPath = LOGO_DIR + u.name + '.png';
+        const iconHtml = `<img src="${logoPath}" class="school-icon" alt="" loading="lazy" onerror="this.style.display='none'">`;
+        return `
+        <tr>
+          <td class="rank ${u.rank != null && u.rank <= 3 ? 'top3' : ''}">${u.rank != null ? u.rank : '—'}</td>
+          <td class="name">${iconHtml}${u.name}</td>
+          <td class="province">${u.province}</td>
+          <td class="type">${u.type}</td>
+          <td class="tags">${renderTags(u.tags)}</td>
+        </tr>
+      `}).join('');
 
       document.getElementById('stat-total').textContent = data.length;
       document.getElementById('stat-985').textContent = data.filter(u => u.tags.includes('985')).length;
       document.getElementById('stat-211').textContent = data.filter(u => u.tags.includes('211')).length;
       document.getElementById('stat-syl').textContent = data.filter(u => u.tags.includes('双一流')).length;
 
-      document.querySelectorAll('#list-header .sortable').forEach(th => {
+      document.querySelectorAll('th[data-sort]').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sort === currentSort.key) {
           th.classList.add(currentSort.dir === 'asc' ? 'sort-asc' : 'sort-desc');
@@ -604,7 +617,7 @@
       render();
     });
 
-    document.querySelectorAll('#list-header .sortable').forEach(th => {
+    document.querySelectorAll('th[data-sort]').forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.sort;
         if (currentSort.key === key) {
@@ -777,8 +790,9 @@
       }
       const filteredData = getMapData(u => matched.includes(u));
       if (chart) {
-        clearProvinceSelection();
         chart.setOption({ series: [{ data: filteredData }] });
+        chart.dispatchAction({ type: 'mapUnSelect' });
+        chart.dispatchAction({ type: 'hideTip' });
       }
       renderFilteredMapInfo(matched);
     }
