@@ -120,10 +120,34 @@
       font-size: 12px;
     }
     @media (max-width: 640px) {
+      header { padding: 32px 16px 24px; }
       header h1 { font-size: 22px; }
+      header p { font-size: 13px; }
+      .container { padding: 16px; }
+      .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 14px 10px; }
+      .stat-card .num { font-size: 22px; }
+      .stat-card .label { font-size: 12px; }
+      .controls { flex-direction: column; align-items: stretch; gap: 10px; }
+      .tabs { width: 100%; }
+      .tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; }
+      .search { width: 100%; min-width: auto; }
+      .view-tabs { flex-wrap: wrap; }
+      .view-tab { flex: 1; text-align: center; font-size: 13px; padding: 8px 12px; }
+      .view-tab:last-child { margin-left: 0; flex-basis: 100%; }
+      .card { overflow-x: auto; }
+      table { min-width: 600px; }
       th, td { padding: 10px 8px; font-size: 13px; }
-      .search { width: 100%; }
-      .controls { flex-direction: column; align-items: stretch; }
+      .tag { font-size: 11px; padding: 2px 6px; }
+      #map-container { height: 360px; }
+      .map-header { padding: 12px 14px; }
+      .map-search { width: 100%; }
+      .map-info { padding: 14px; }
+      .map-info h3 { font-size: 16px; }
+      .map-info .info-stat { padding: 8px 12px; min-width: 70px; }
+      .map-info .info-stat .num { font-size: 18px; }
+      .map-info .school-chip { font-size: 12px; }
+      .note { font-size: 11px; }
     }
   
     .view-tabs {
@@ -142,13 +166,43 @@
     }
     .view-tab:hover { border-color: var(--primary); color: var(--primary); }
     .view-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    #map-container {
-      width: 100%;
-      height: 600px;
+    .map-card {
       background: var(--card);
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,.06);
       display: none;
+      overflow: hidden;
+    }
+    .map-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .map-header h3 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--text);
+    }
+    .map-search {
+      width: 240px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .map-search:focus { border-color: var(--primary); }
+    @media (max-width: 640px) {
+      .map-search { width: 100%; }
+    }
+    #map-container {
+      width: 100%;
+      height: 600px;
     }
     @media (max-width: 640px) {
       #map-container { height: 420px; }
@@ -233,6 +287,7 @@
     <div class="view-tabs">
       <div class="view-tab active" data-view="list">列表视图</div>
       <div class="view-tab" data-view="map">地图分布</div>
+      <a href="a-plus.html" class="view-tab" style="text-decoration:none;color:inherit;margin-left:auto;">A+专业排名 →</a>
     </div>
 
     <div class="card" id="table-card">
@@ -250,7 +305,13 @@
       </table>
     </div>
 
-    <div id="map-container"></div>
+    <div class="map-card" id="map-card">
+      <div class="map-header">
+        <h3>地图分布</h3>
+        <input type="text" class="map-search" id="map-search" placeholder="搜索省份 / 学校">
+      </div>
+      <div id="map-container"></div>
+    </div>
     <div id="map-info" class="map-info">
       <h3 id="info-title">请选择省份</h3>
       <div class="info-stats" id="info-stats"></div>
@@ -435,7 +496,14 @@
 
     function getFiltered() {
       return universities.filter(u => {
-        const matchFilter = currentFilter === 'all' || u.tags.includes(currentFilter);
+        let matchFilter = true;
+        if (currentFilter === '985') {
+          matchFilter = u.tags.includes('985');
+        } else if (currentFilter === '211') {
+          matchFilter = u.tags.includes('211') && !u.tags.includes('985');
+        } else if (currentFilter === '双一流') {
+          matchFilter = u.tags.includes('双一流') && !u.tags.includes('211');
+        }
         const term = searchTerm.trim().toLowerCase();
         const matchSearch = !term ||
           u.name.toLowerCase().includes(term) ||
@@ -519,8 +587,10 @@
     // Map visualization
     let chart = null;
     const mapContainer = document.getElementById('map-container');
+    const mapCard = document.getElementById('map-card');
     const tableCard = document.getElementById('table-card');
     const viewTabs = document.querySelectorAll('.view-tab');
+    const mapSearch = document.getElementById('map-search');
 
     const provinceNameMap = {
       "北京": "北京市", "天津": "天津市", "上海": "上海市", "重庆": "重庆市",
@@ -582,6 +652,54 @@
       mapInfo.style.display = '';
     }
 
+    function selectProvinceOnMap(provinceName) {
+      if (!chart) return;
+      chart.dispatchAction({ type: 'mapUnSelect' });
+      chart.dispatchAction({ type: 'mapSelect', name: provinceName });
+      chart.dispatchAction({ type: 'showTip', seriesIndex: 0, name: provinceName });
+    }
+
+    function clearProvinceSelection() {
+      if (!chart) return;
+      chart.dispatchAction({ type: 'mapUnSelect' });
+      chart.dispatchAction({ type: 'hideTip' });
+    }
+
+    function searchMapProvince(query) {
+      const q = query.trim();
+      if (!q) {
+        clearProvinceSelection();
+        mapInfo.classList.remove('active');
+        mapInfo.style.display = 'none';
+        infoTitle.textContent = '';
+        infoStats.innerHTML = '';
+        infoSchools.innerHTML = '';
+        return;
+      }
+      let matchedProvince = null;
+      for (const short of Object.keys(provinceNameMap)) {
+        const full = provinceNameMap[short];
+        if (full.includes(q) || short.includes(q)) {
+          matchedProvince = full;
+          break;
+        }
+      }
+      if (!matchedProvince) {
+        const school = universities.find(u => u.name.includes(q));
+        if (school) {
+          matchedProvince = provinceNameMap[school.province] || school.province;
+        }
+      }
+      if (matchedProvince) {
+        selectProvinceOnMap(matchedProvince);
+        renderMapInfo(matchedProvince);
+      } else {
+        clearProvinceSelection();
+        mapInfo.classList.remove('active');
+        mapInfo.style.display = 'none';
+      }
+    }
+
     function initMap() {
       if (chart) return;
       chart = echarts.init(mapContainer);
@@ -616,7 +734,7 @@
               name: '高校数量',
               type: 'map',
               map: 'china',
-              roam: true,
+              roam: false,
               label: { show: true, fontSize: 11 },
               emphasis: {
                 label: { show: true },
@@ -639,19 +757,25 @@
         tab.classList.add('active');
         if (tab.dataset.view === 'map') {
           tableCard.style.display = 'none';
-          mapContainer.style.display = 'block';
+          mapCard.style.display = 'block';
           initMap();
           if (chart) chart.resize();
         } else {
           tableCard.style.display = 'block';
-          mapContainer.style.display = 'none';
+          mapCard.style.display = 'none';
           mapInfo.classList.remove('active');
           mapInfo.style.display = 'none';
           infoTitle.textContent = '';
           infoStats.innerHTML = '';
           infoSchools.innerHTML = '';
+          mapSearch.value = '';
+          clearProvinceSelection();
         }
       });
+    });
+
+    mapSearch.addEventListener('input', e => {
+      searchMapProvince(e.target.value);
     });
 
     window.addEventListener('resize', () => {

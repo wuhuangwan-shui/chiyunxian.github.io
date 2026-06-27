@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026软科中国大学A+专业排名</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --border: #e5e7eb;
+      --tag-985: #ef4444;
+      --tag-211: #f59e0b;
+      --tag-syl: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(90deg, #1e40af, #3b82f6);
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 8px; font-size: 28px; }
+    header p { margin: 0; opacity: .9; font-size: 15px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .nav-bar a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .nav-bar a:hover { text-decoration: underline; }
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .stat-box .label { font-size: 12px; color: var(--muted); }
+    .controls {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tab {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all .2s;
+    }
+    .tab:hover { border-color: var(--primary); color: var(--primary); }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .search {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    .search:focus { border-color: var(--primary); }
+    .result-tip {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      transition: box-shadow .2s;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+    .school-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      flex-wrap: wrap;
+    }
+    .school-name {
+      font-size: 17px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .school-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .tags { display: flex; gap: 6px; }
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .tag-985 { background: var(--tag-985); }
+    .tag-211 { background: var(--tag-211); }
+    .tag-syl { background: var(--tag-syl); }
+    .count-badge {
+      background: #eff6ff;
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .major-list {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      display: none;
+    }
+    .major-list.open { display: block; }
+    .major-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .major-chip {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .major-rank {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 11px;
+    }
+    .major-chip.highlight {
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 600;
+    }
+    .major-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .major-row:last-child { border-bottom: none; }
+    .major-schools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .school-chip {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+    }
+    .note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    footer {
+      text-align: center;
+      padding: 30px 16px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      header { padding: 30px 16px 22px; }
+      header h1 { font-size: 20px; }
+      header p { font-size: 13px; }
+      main { padding: 16px 12px 40px; }
+      .nav-bar { flex-direction: column; align-items: flex-start; }
+      .stats { width: 100%; }
+      .stat-box { flex: 1; padding: 10px 12px; }
+      .controls { padding: 12px; }
+      .tabs { width: 100%; }
+      .tab { flex: 1; text-align: center; padding: 8px 10px; font-size: 13px; }
+      .search { padding: 10px 12px; font-size: 14px; }
+      .card { padding: 14px; }
+      .school-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .school-name { font-size: 15px; gap: 8px; flex-wrap: wrap; }
+      .school-meta { width: 100%; justify-content: space-between; font-size: 12px; }
+      .count-badge { font-size: 12px; }
+      .major-grid { gap: 6px; }
+      .major-chip { font-size: 12px; padding: 4px 8px; }
+      .major-rank { font-size: 10px; }
+      .major-row { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 0; }
+      .school-chip { font-size: 11px; }
+      .result-tip { font-size: 13px; }
+      .note { font-size: 12px; }
+      footer { padding: 20px 12px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>2026软科中国大学A+专业排名</h1>
+    <p>全国拥有A+专业的高校及其A+专业完整名单</p>
+  </header>
+  <main>
+    <div class="nav-bar">
+      <a href="index.html">← 返回大学综合排名</a>
+      <div class="stats">
+        <div class="stat-box"><div class="num" id="stat-univ">0</div><div class="label">有A+高校</div></div>
+        <div class="stat-box"><div class="num" id="stat-major">0</div><div class="label">A+专业数</div></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="tabs">
+        <div class="tab active" data-mode="school">按学校查看</div>
+        <div class="tab" data-mode="major">按专业查看</div>
+      </div>
+      <input type="text" class="search" id="search" placeholder="搜索学校名称 / A+专业名称">
+    </div>
+
+    <div class="result-tip" id="result-tip"></div>
+    <div id="results"></div>
+
+    <p class="note">
+      数据来源：软科（shanghairanking.cn）2026年6月15日发布的“2026软科中国大学专业排名”。A+专业标准为全国排名前2%或前2名。本页汇总全国拥有A+专业的高校及其全部A+专业，支持按学校或按专业检索。
+    </p>
+  </main>
+  <footer>
+    © 2026 软科中国大学专业排名数据展示 · 仅供学习参考
+  </footer>
+
+  <script src="a_plus_data.js"></script>
+  <script>
+    const { universities, majors } = aPlusData;
+    const searchInput = document.getElementById('search');
+    const resultsEl = document.getElementById('results');
+    const resultTip = document.getElementById('result-tip');
+    const tabs = document.querySelectorAll('.tab');
+    let mode = 'school';
+
+    document.getElementById('stat-univ').textContent = universities.length;
+    document.getElementById('stat-major').textContent = Object.keys(majors).length;
+
+    function renderTags(tags) {
+      return tags.map(t => `<span class="tag tag-${t === '双一流' ? 'syl' : (t === '985' ? '985' : '211')}">${t}</span>`).join('');
+    }
+
+    function renderSchools(filterText) {
+      const q = filterText.trim();
+      let list = universities;
+      if (q) {
+        list = universities.filter(u => {
+          const matchSchool = u.univ.includes(q) || u.province.includes(q);
+          const matchMajor = u.majors.some(m => m.major.includes(q));
+          return matchSchool || matchMajor;
+        });
+      }
+
+      resultTip.textContent = q ? `搜索“${q}”找到 ${list.length} 所高校` : `共 ${list.length} 所高校拥有A+专业，按A+专业数量排序`;
+
+      if (!list.length) {
+        resultsEl.innerHTML = '<div class="empty">未找到匹配结果</div>';
+        return;
+      }
+
+      resultsEl.innerHTML = list.map(u => {
+        const matchedMajors = q ? u.majors.filter(m => m.major.includes(q)) : [];
+        const showMajors = q && matchedMajors.length ? matchedMajors : u.majors;
+        const majorHtml = showMajors.map(m => {
+          const hl = q && m.major.includes(q) ? ' highlight' : '';
+          return `<span class="major-chip${hl}"><span class="major-rank">${m.rank}</span>${m.major}</span>`;
+        }).join('');
+        return `
+          <div class="card">
+            <div class="school-header" onclick="toggleSchool(this)">
+              <div class="school-name">
+                ${u.univ}
+                <div class="tags">${renderTags(u.tags)}</div>
+              </div>
+              <div class="school-meta">
+                <span>${u.province}</span>
+                <span class="count-badge">A+专业 ${u.count} 个</span>
+                <span style="color:var(--muted)">▶</span>
+              </div>
+            </div>
+            <div class="major-list">
+              <div class="major-grid">${majorHtml}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMajors(filterText) {
+      const q = filterText.trim();
+      let list = Object.entries(majors);
+      if (q) {
+        list = list.filter(([majorName]) => majorName.includes(q));
+      }
+      list.sort((a, b) => b[1].length - a[1].length);
+
+      resultTip.textContent = q ? `搜索“${q}”找到 ${list.length} 个A+专业` : `共 ${list.length} 个A+专业，按拥有该专业的高校数量排序`;
+
+      if (!list.length) {
+        resultsEl.innerHTML = '<div class="empty">未找到匹配结果</div>';
+        return;
+      }
+
+      resultsEl.innerHTML = list.map(([majorName, schools]) => {
+        const schoolHtml = schools.sort((a, b) => {
+          const ar = parseInt(a.rank) || 999;
+          const br = parseInt(b.rank) || 999;
+          return ar - br;
+        }).map(s => `<span class="school-chip">${s.univ} <span class="major-rank">${s.rank}</span></span>`).join('');
+        return `
+          <div class="card">
+            <div class="major-row">
+              <div style="font-weight:600">${majorName}</div>
+              <div class="count-badge">${schools.length} 所高校</div>
+            </div>
+            <div class="major-schools">${schoolHtml}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function render() {
+      if (mode === 'school') renderSchools(searchInput.value);
+      else renderMajors(searchInput.value);
+    }
+
+    window.toggleSchool = function(header) {
+      const list = header.nextElementSibling;
+      list.classList.toggle('open');
+      const arrow = header.querySelector('.school-meta span:last-child');
+      arrow.textContent = list.classList.contains('open') ? '▼' : '▶';
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        mode = tab.dataset.mode;
+        searchInput.placeholder = mode === 'school' ? '搜索学校名称 / A+专业名称' : '搜索A+专业名称';
+        render();
+      });
+    });
+
+    searchInput.addEventListener('input', render);
+
+    render();
+  </script>
+</body>
+</html>
