@@ -308,7 +308,7 @@
     <div class="map-card" id="map-card">
       <div class="map-header">
         <h3>地图分布</h3>
-        <input type="text" class="map-search" id="map-search" placeholder="搜索省份 / 学校">
+        <input type="text" class="map-search" id="map-search" placeholder="搜索学校 / 省份 / 类型 / 标签">
       </div>
       <div id="map-container"></div>
     </div>
@@ -586,6 +586,7 @@
 
     // Map visualization
     let chart = null;
+    let originalMapData = null;
     const mapContainer = document.getElementById('map-container');
     const mapCard = document.getElementById('map-card');
     const tableCard = document.getElementById('table-card');
@@ -665,10 +666,57 @@
       chart.dispatchAction({ type: 'hideTip' });
     }
 
+    function getMapData(filterFn) {
+      const stats = {};
+      universities.forEach(u => {
+        if (filterFn && !filterFn(u)) return;
+        const p = provinceNameMap[u.province] || u.province;
+        if (!stats[p]) stats[p] = 0;
+        stats[p]++;
+      });
+      return Object.keys(stats).map(name => ({ name, value: stats[name] }));
+    }
+
+    function renderFilteredMapInfo(matchedSchools) {
+      if (!matchedSchools.length) {
+        mapInfo.classList.remove('active');
+        mapInfo.style.display = 'none';
+        return;
+      }
+      infoTitle.textContent = `搜索“${mapSearch.value.trim()}” · 共 ${matchedSchools.length} 所高校`;
+      infoStats.innerHTML = '';
+      const byProvince = {};
+      matchedSchools.forEach(u => {
+        const p = provinceNameMap[u.province] || u.province;
+        if (!byProvince[p]) byProvince[p] = [];
+        byProvince[p].push(u);
+      });
+      infoSchools.innerHTML = Object.entries(byProvince).map(([province, schools]) => {
+        const list = schools.map(u => {
+          let color = '#6b7280';
+          if (u.tags.includes('985')) color = '#ef4444';
+          else if (u.tags.includes('211')) color = '#f59e0b';
+          else if (u.tags.includes('双一流')) color = '#10b981';
+          const rankText = u.rank ? `第${u.rank}名` : '未排名';
+          return `<span class="school-chip"><span class="dot" style="background:${color}"></span>${u.name} <small style="color:var(--muted)">(${rankText})</small></span>`;
+        }).join('');
+        return `<div style="margin-bottom:14px;"><div style="font-weight:600;margin-bottom:6px;color:var(--primary)">${province}</div><div class="school-list">${list}</div></div>`;
+      }).join('');
+      mapInfo.classList.add('active');
+      mapInfo.style.display = '';
+    }
+
+    function restoreOriginalMap() {
+      if (chart && originalMapData) {
+        chart.setOption({ series: [{ data: originalMapData }] });
+      }
+      clearProvinceSelection();
+    }
+
     function searchMapProvince(query) {
       const q = query.trim();
       if (!q) {
-        clearProvinceSelection();
+        restoreOriginalMap();
         mapInfo.classList.remove('active');
         mapInfo.style.display = 'none';
         infoTitle.textContent = '';
@@ -676,28 +724,23 @@
         infoSchools.innerHTML = '';
         return;
       }
-      let matchedProvince = null;
-      for (const short of Object.keys(provinceNameMap)) {
-        const full = provinceNameMap[short];
-        if (full.includes(q) || short.includes(q)) {
-          matchedProvince = full;
-          break;
-        }
-      }
-      if (!matchedProvince) {
-        const school = universities.find(u => u.name.includes(q));
-        if (school) {
-          matchedProvince = provinceNameMap[school.province] || school.province;
-        }
-      }
-      if (matchedProvince) {
-        selectProvinceOnMap(matchedProvince);
-        renderMapInfo(matchedProvince);
-      } else {
-        clearProvinceSelection();
+      const matched = universities.filter(u =>
+        u.name.includes(q) ||
+        u.province.includes(q) ||
+        u.type.includes(q) ||
+        u.tags.some(t => t.includes(q))
+      );
+      if (!matched.length) {
+        restoreOriginalMap();
         mapInfo.classList.remove('active');
         mapInfo.style.display = 'none';
+        return;
       }
+      const filteredData = getMapData(u => matched.includes(u));
+      if (chart) {
+        chart.setOption({ series: [{ data: filteredData }] });
+      }
+      renderFilteredMapInfo(matched);
     }
 
     function initMap() {
@@ -712,6 +755,7 @@
             value: stats[name].total,
             ...stats[name]
           }));
+          originalMapData = data;
 
           chart.on('click', function(params) {
             if (params.componentType === 'series') {
@@ -769,7 +813,7 @@
           infoStats.innerHTML = '';
           infoSchools.innerHTML = '';
           mapSearch.value = '';
-          clearProvinceSelection();
+          restoreOriginalMap();
         }
       });
     });
