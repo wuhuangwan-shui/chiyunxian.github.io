@@ -396,6 +396,7 @@
   { rank: 59, name: "暨南大学", province: "广东", type: "综合", score: null, tags: ["211", "双一流"] },
   { rank: 60, name: "上海大学", province: "上海", type: "综合", score: null, tags: ["211", "双一流"] },
   { rank: 60, name: "天津医科大学", province: "天津", type: "医药", score: null, tags: ["211", "双一流"] },
+  { rank: 61, name: "西南大学", province: "重庆", type: "综合", score: null, tags: ["211", "双一流"] },
   { rank: 62, name: "中国石油大学（北京）", province: "北京", type: "理工", score: null, tags: ["211", "双一流"] },
   { rank: 63, name: "河海大学", province: "江苏", type: "理工", score: null, tags: ["211", "双一流"] },
   { rank: 63, name: "陕西师范大学", province: "陕西", type: "师范", score: null, tags: ["211", "双一流"] },
@@ -473,7 +474,7 @@
   { rank: null, name: "中国科学院大学", province: "北京", type: "综合", score: null, tags: ["双一流"] },
   { rank: null, name: "中央音乐学院", province: "北京", type: "艺术", score: null, tags: ["211", "双一流"] },
 ];
-// Total: 143
+// Total: 144
 
     let currentFilter = 'all';
     let currentSort = { key: 'rank', dir: 'asc' };
@@ -534,7 +535,7 @@
       const data = sortData(getFiltered());
       tbody.innerHTML = data.map(u => `
         <tr>
-          <td class="rank ${u.rank <= 3 ? 'top3' : ''}">${u.rank}</td>
+          <td class="rank ${u.rank != null && u.rank <= 3 ? 'top3' : ''}">${u.rank != null ? u.rank : '—'}</td>
           <td class="name">${u.name}</td>
           <td>${u.province}</td>
           <td>${u.type}</td>
